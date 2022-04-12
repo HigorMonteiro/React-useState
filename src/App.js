@@ -1,39 +1,32 @@
 import React from 'react';
-import Modal from './Modal';
-import ButtonModal from './ButtonModal';
+import Product from './Product';
+import LoadingSpinner from './LoadingSpinner';
 
 const App = () => {
-  const [ativo, setAtivo] = React.useState(false);
-  const [dados, setDados] = React.useState({
-    usernma: 'Higor',
-    age: '28',
-  });
-  const [modal, setModal] = React.useState(false);
+  const [dados, setDados] = React.useState(null);
+  const [loading, setLoading] = React.useState(null);
 
-  function handleClick() {
-    setAtivo(!ativo);
-    setDados({ ...dados, job: 'FullStack developer' });
+  async function handleClick(event) {
+    setLoading(true);
+    const response = await fetch(
+      `https://ranekapi.origamid.dev/json/api/produto/${event.target.innerText}`,
+    );
+    const json = await response.json();
+    setDados(json);
+    setLoading(false);
   }
 
   return (
-    <div className="container">
-      <div className="item">
-        <b>Username:</b> {dados.usernma}
+    <>
+      <div className="container">
+        <button onClick={handleClick}>smartphone</button>
+        <button onClick={handleClick}>tablet</button>
+        <button onClick={handleClick}>notebook</button>
       </div>
-      <div className="item">
-        <b>Age:</b> {dados.age}
-      </div>
-
-      <div className="item">
-        <b>Job:</b>
-        {ativo ? dados.job : 'Inativo'}
-      </div>
-      <div className="item">
-        <button onClick={handleClick}>{ativo ? 'Ativo' : 'Inativo'}</button>
-      </div>
-      <Modal modal={modal} setModal={setModal} />
-      <ButtonModal setModal={setModal} />
-    </div>
+      {!loading && dados && <Product className="item" dados={dados} />}
+      {loading && <p>Loading ....</p>}
+      {loading && <LoadingSpinner />}
+    </>
   );
 };
 
